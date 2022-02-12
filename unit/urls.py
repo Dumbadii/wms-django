@@ -15,9 +15,18 @@ Including another URLconf
 """
 from django.urls import path
 from .views import (
-    UnitListView
+    UnitListView,
+    UnitCreateView,
+    UnitDetailView,
+    UnitUpdateView,
+    UnitDeleteView,
 )
 
+app_name = 'unit'
 urlpatterns = [
-    path('list/', UnitListView.as_view()),
+    path('list/', UnitListView.as_view(), name='unit-list'),
+    path('<int:pk>/', UnitDetailView.as_view(), name='unit-detail'),
+    path('<int:pk>/update/', UnitUpdateView.as_view(), name='unit-update'),
+    path('<int:pk>/delete/', UnitDeleteView.as_view(), name='unit-delete'),
+    path('create/', UnitCreateView.as_view(), name='unit-create'),
 ]

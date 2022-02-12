@@ -7,5 +7,5 @@ class Unit(models.Model):
     name = models.TextField(max_length=10)
 
     def get_absolute_url(self):
-        return reverse("unit-detail", kwargs={"id": self.id})
+        return reverse("unit:unit-detail", kwargs={"pk": self.id})
 
