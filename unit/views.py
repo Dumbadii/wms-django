@@ -8,9 +8,10 @@ from django.views.generic import (
     DeleteView,
 )
 
-from .models import Unit
-from .forms import UnitModelForm
+from .models import Unit, Department
+from .forms import UnitModelForm, DepartmentModelForm
 
+# Unit view
 class UnitListView(ListView):
     queryset = Unit.objects.all()
     template_name = 'unit_list.html'
@@ -36,3 +37,30 @@ class UnitDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse('unit:unit-list')
+
+# Department view
+class DepartmentListView(ListView):
+    queryset = Department.objects.all()
+    template_name = 'department_list.html'
+
+class DepartmentCreateView(CreateView):
+    template_name = 'department_create.html'
+    form_class = DepartmentModelForm
+    queryset = Department.objects.all()
+    # success_url = reverse("department:department-list")
+
+class DepartmentUpdateView(UpdateView):
+    template_name = 'department_create.html'
+    form_class = DepartmentModelForm
+    queryset = Department.objects.all()
+
+class DepartmentDetailView(DetailView):
+    queryset = Department.objects.all()
+    template_name = 'department_detail.html'
+
+class DepartmentDeleteView(DeleteView):
+    queryset = Department.objects.all()
+    template_name = 'department_delete.html'
+
+    def get_success_url(self):
+        return reverse('department:department-list')
