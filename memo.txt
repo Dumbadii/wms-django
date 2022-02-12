@@ -1,0 +1,1 @@
+1、in a model , some fields can modify anytime ,some only the ones have no children. how?

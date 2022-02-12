@@ -8,12 +8,14 @@ from django.views.generic import (
     DeleteView,
 )
 
-from .models import Unit, Department, ItemType
+from .models import Unit, Department, ItemType, ItemInfo
 from .forms import (
     UnitModelForm,
     DepartmentModelForm,
     ItemTypeCreateModelForm,
     ItemTypeUpdateModelForm,
+    ItemInfoCreateModelForm,
+    ItemInfoUpdateModelForm,
 )
 
 # Unit view
@@ -96,3 +98,35 @@ class ItemTypeDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse('params:itemtype-list')
+
+# ItemInfo
+def load_types(request):
+    type_id = request.GET.get('type')
+    types = ItemType.objects.filter(parent=type_id)
+    return render(request, 'iteminfo/type_dropdown_list_options.html', {'types': types})
+
+class ItemInfoCreateView(CreateView):
+    template_name = 'iteminfo/iteminfo_create.html'
+    form_class = ItemInfoCreateModelForm
+    queryset = ItemInfo.objects.all()
+    # success_url = reverse("unit:unit-list")
+
+class ItemInfoListView(ListView):
+    queryset = ItemInfo.objects.all()
+    template_name = 'iteminfo/iteminfo_list.html'
+
+class ItemInfoUpdateView(UpdateView):
+    template_name = 'iteminfo/iteminfo_create.html'
+    form_class = ItemInfoUpdateModelForm
+    queryset = ItemInfo.objects.all()
+
+class ItemInfoDetailView(DetailView):
+    queryset = ItemInfo.objects.all()
+    template_name = 'iteminfo/iteminfo_detail.html'
+
+class ItemInfoDeleteView(DeleteView):
+    queryset = ItemInfo.objects.all()
+    template_name = 'iteminfo/iteminfo_delete.html'
+
+    def get_success_url(self):
+        return reverse('params:iteminfo-list')

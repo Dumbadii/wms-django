@@ -30,6 +30,12 @@ from .views import (
     ItemTypeUpdateView,
     ItemTypeDeleteView,
     ItemTypeListView,
+    ItemInfoCreateView,
+    ItemInfoDetailView,
+    ItemInfoUpdateView,
+    ItemInfoDeleteView,
+    ItemInfoListView,
+    load_types,
 )
 
 app_name = 'params'
@@ -51,4 +57,11 @@ urlpatterns = [
     path('itemtype/<int:pk>/update/', ItemTypeUpdateView.as_view(), name='itemtype-update'),
     path('itemtype/<int:pk>/delete/', ItemTypeDeleteView.as_view(), name='itemtype-delete'),
     path('itemtype/create/', ItemTypeCreateView.as_view(), name='itemtype-create'),
+
+    path('iteminfo/list/', ItemInfoListView.as_view(), name='iteminfo-list'),
+    path('iteminfo/<int:pk>/', ItemInfoDetailView.as_view(), name='iteminfo-detail'),
+    path('iteminfo/<int:pk>/update/', ItemInfoUpdateView.as_view(), name='iteminfo-update'),
+    path('iteminfo/<int:pk>/delete/', ItemInfoDeleteView.as_view(), name='iteminfo-delete'),
+    path('iteminfo/create/', ItemInfoCreateView.as_view(), name='iteminfo-create'),
+    path('iteminfo/ajax/load-types/', load_types, name='iteminfo-ajax_load_types')
 ]

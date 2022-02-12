@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<form action="." method="POST" id="iteminfoForm" data-types-url="{% url 'params:iteminfo-ajax_load_types' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save"/>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    $("#id_type1").change(function() {
+        var url = $("#iteminfoForm").attr("data-types-url");
+        var typeId = $(this).val();
+
+        $.ajax({
+            url: url,
+            data: {
+                'type': typeId
+            },
+            success: function(data) {
+                $("#id_type2").html(data);
+            }
+        });
+    });
+</script>
+
+{% endblock %}
