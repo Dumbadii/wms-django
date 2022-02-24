@@ -13,11 +13,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
+from .views import (
+    StockinCreateView,
+)
 
+app_name = 'stockin'
 urlpatterns = [
-    path('params/', include('params.urls')),
-    path('stockin/', include('stockin.urls')),
-    path('admin/', admin.site.urls),
+    # path('iteminfo/list/', ItemInfoListView.as_view(), name='iteminfo-list'),
+    # path('iteminfo/<int:pk>/', ItemInfoDetailView.as_view(), name='iteminfo-detail'),
+    # path('iteminfo/<int:pk>/update/', ItemInfoUpdateView.as_view(), name='iteminfo-update'),
+    # path('iteminfo/<int:pk>/delete/', ItemInfoDeleteView.as_view(), name='iteminfo-delete'),
+    path('create/', StockinCreateView.as_view(), name='stockin-create'),
+    # path('iteminfo/ajax/load-types/', load_types, name='iteminfo-ajax_load_types')
 ]
