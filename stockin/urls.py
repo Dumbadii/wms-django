@@ -16,14 +16,18 @@ Including another URLconf
 from django.urls import path
 from .views import (
     StockinCreateView,
+    StockinDetailView,
+    StockinDetailUpdateView,
+    StockinDeleteView,
+    StockinListView,
 )
 
 app_name = 'stockin'
 urlpatterns = [
-    # path('iteminfo/list/', ItemInfoListView.as_view(), name='iteminfo-list'),
-    # path('iteminfo/<int:pk>/', ItemInfoDetailView.as_view(), name='iteminfo-detail'),
-    # path('iteminfo/<int:pk>/update/', ItemInfoUpdateView.as_view(), name='iteminfo-update'),
-    # path('iteminfo/<int:pk>/delete/', ItemInfoDeleteView.as_view(), name='iteminfo-delete'),
+    path('', StockinListView.as_view(), name='stockin-home'),
+    path('list/', StockinListView.as_view(), name='stockin-list'),
     path('create/', StockinCreateView.as_view(), name='stockin-create'),
-    # path('iteminfo/ajax/load-types/', load_types, name='iteminfo-ajax_load_types')
+    path('update/<int:pk>/', StockinDetailUpdateView.as_view(), name='stockin-update'),
+    path('delete/<int:pk>/', StockinDeleteView.as_view(), name='stockin-delete'),
+    path('<int:pk>/', StockinDetailView.as_view(), name='stockin-info'),
 ]

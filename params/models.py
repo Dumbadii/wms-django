@@ -71,7 +71,7 @@ class ItemType(models.Model):
 
 ItemCodeReg = RegexValidator(r'^[A-Z][0-9]{6}$')
 class ItemInfo(models.Model):
-    code = models.CharField(unique=True, max_length=7, validators=[])
+    code = models.CharField(unique=True, max_length=7, validators=[ItemCodeReg])
     name = models.CharField(unique=True, max_length=100)
     specification = models.TextField(max_length=500)
     type1 = models.ForeignKey(ItemType, on_delete=models.PROTECT, related_name='parent_type')
@@ -100,3 +100,6 @@ class ItemInfo(models.Model):
 
     def get_delete_url(self):
         return reverse("params:iteminfo-delete", kwargs={"pk": self.id})
+
+    def __str__(self):
+        return '%s-%s' %(self.code, self.name)
