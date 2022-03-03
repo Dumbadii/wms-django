@@ -29,7 +29,7 @@ class ItemTypeCreateModelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['parent'].queryset = self.fields['parent'].queryset.filter(parent=None)
+        self.fields['parent'].queryset = self.fields['parent'].queryset.filter(parent=0)
 
 class ItemTypeUpdateModelForm(forms.ModelForm):
     class Meta:

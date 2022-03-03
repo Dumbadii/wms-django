@@ -103,7 +103,13 @@ class ItemTypeDeleteView(DeleteView):
 def load_types(request):
     type_id = request.GET.get('type')
     types = ItemType.objects.filter(parent=type_id)
-    return render(request, 'iteminfo/type_dropdown_list_options.html', {'types': types})
+    return render(request, 'itemtype/type_dropdown_list_options.html', {'types': types})
+
+def load_items(request):
+    type_id = request.GET.get('type')
+    items = ItemInfo.objects.filter(type2=type_id)
+    return render(request, 'iteminfo/item_dropdown_list_options.html', {'items': items})
+
 
 class ItemInfoCreateView(CreateView):
     template_name = 'iteminfo/iteminfo_create.html'

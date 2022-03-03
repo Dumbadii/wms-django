@@ -40,7 +40,7 @@ ItemTypeReg = RegexValidator(r'^[A-Z][0-9]{0,3}$')
 class ItemType(models.Model):
     code = models.CharField(unique=True, max_length=7, validators=[ItemTypeReg])
     name = models.TextField(max_length=10)
-    parent = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
+    parent = models.ForeignKey('self', on_delete=models.PROTECT, default=0)
 
     def __unicode__(self):
         return u'%s-%s' %(self.code, self.name)
@@ -52,7 +52,7 @@ class ItemType(models.Model):
         if self.pk is None:
             max_code = ItemType.objects.filter(parent=self.parent).aggregate(models.Max('code'))['code__max']
             if not max_code:
-                self.code = 'A' if self.parent == None else self.parent.code + '001'
+                self.code = 'A' if self.parent == 0 else self.parent.code + '001'
             elif len(max_code) == 1:
                 self.code = chr(ord(max_code[0]) + 1)
             else:

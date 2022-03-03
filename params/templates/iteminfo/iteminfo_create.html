@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<form action="." method="POST" id="iteminfoForm" data-types-url="{% url 'params:iteminfo-ajax_load_types' %}">
+<form action="." method="POST" id="iteminfoForm" data-types-url="{% url 'params:itemtype-ajax_load_types' %}">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save"/>
