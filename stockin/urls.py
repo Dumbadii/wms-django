@@ -20,14 +20,25 @@ from .views import (
     StockinDetailUpdateView,
     StockinDeleteView,
     StockinListView,
+    StockoutCreateView,
+    StockoutDetailView,
+    StockoutDetailUpdateView,
+    StockoutDeleteView,
+    StockoutListView
 )
 
-app_name = 'stockin'
+app_name = 'stock'
 urlpatterns = [
-    path('', StockinListView.as_view(), name='stockin-home'),
-    path('list/', StockinListView.as_view(), name='stockin-list'),
-    path('create/', StockinCreateView.as_view(), name='stockin-create'),
-    path('update/<int:pk>/', StockinDetailUpdateView.as_view(), name='stockin-update'),
-    path('delete/<int:pk>/', StockinDeleteView.as_view(), name='stockin-delete'),
-    path('<int:pk>/', StockinDetailView.as_view(), name='stockin-info'),
+    path('in/', StockinListView.as_view(), name='stockin-home'),
+    path('in/list/', StockinListView.as_view(), name='stockin-list'),
+    path('in/create/', StockinCreateView.as_view(), name='stockin-create'),
+    path('in/update/<int:pk>/', StockinDetailUpdateView.as_view(), name='stockin-update'),
+    path('in/delete/<int:pk>/', StockinDeleteView.as_view(), name='stockin-delete'),
+    path('in/<int:pk>/', StockinDetailView.as_view(), name='stockin-info'),
+    path('out/', StockoutListView.as_view(), name='stockout-home'),
+    path('out/list/', StockoutListView.as_view(), name='stockout-list'),
+    path('out/create/', StockoutCreateView.as_view(), name='stockout-create'),
+    path('out/update/<int:pk>/', StockoutDetailUpdateView.as_view(), name='stockout-update'),
+    path('out/delete/<int:pk>/', StockoutDeleteView.as_view(), name='stockout-delete'),
+    path('out/<int:pk>/', StockoutDetailView.as_view(), name='stockout-info')
 ]

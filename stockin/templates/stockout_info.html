@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}入库单详情{% endblock %}
+{% block content %}
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <h3>{{ object.id }} - {{ object.code }}</h3>
+    <div class="d-flex d-flex-inline"><span class="pe-2">入库单号:</span> <h5>{{ object.code }}</h5></div>
+    <hr>
+        {% for detail in object.details.all %}
+        <div class="small">品名:{{ detail.item }}({{ detail.list_barcodes }})</div>
+        <hr>
+        {% endfor %}
+    <p>
+        <a href="{{ object.get_update_url }}" role="button" class="btn btn-primary w-100 mb-2">Update</a>
+        <a href="{{ object.get_delete_url }}" role="button" class="btn btn-secondary w-100">Delete</a>
+    </p>
+{% endblock %}

@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 from extra_views import CreateWithInlinesView, ModelFormSetView, UpdateWithInlinesView, InlineFormSetFactory
-from .models import StockinBasic, StockinDetail, Barcode
+from .models import StockinBasic, StockinDetail, StockoutBasic, StockoutDetail
 from django.views.generic import (
     ListView,
     DetailView,
@@ -11,7 +11,7 @@ from django.views.generic import (
     FormView
 )
 from django.views.generic.detail import SingleObjectMixin
-from .forms import StockinDetailFormset
+from .forms import StockinDetailFormset, StockoutDetailFormset
 
 # Create your views here.
 class StockinDetailInline(InlineFormSetFactory):
@@ -36,6 +36,7 @@ class StockinCreateView(CreateView):
 class StockinDetailUpdateView(SingleObjectMixin, FormView):
     model = StockinBasic
     template_name = 'stockin_detail_edit.html'
+    # FormView(Form=)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=StockinBasic.objects.all())
@@ -77,3 +78,63 @@ class StockinDeleteView(DeleteView):
 class StockinListView(ListView):
     queryset = StockinBasic.objects.all()
     template_name = 'stockin_list.html'
+
+# stockout
+class StockoutCreateView(CreateView):
+    model = StockoutBasic
+    template_name = 'stockout_create.html'
+    fields = ['code', 'operator', 'client', 'memo']
+
+    def form_valid(self, form):
+
+        messages.add_message(
+            self.request, 
+            messages.SUCCESS,
+            'The stockout has been added'
+        )
+
+        return super().form_valid(form)
+
+class StockoutDetailUpdateView(SingleObjectMixin, FormView):
+    model = StockoutBasic
+    template_name = 'stockout_detail_edit.html'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=StockoutBasic.objects.all())
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=StockoutBasic.objects.all())
+        return super().post(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        return StockoutDetailFormset(**self.get_form_kwargs(), instance=self.object)
+
+    def form_valid(self, form):
+        form.save()
+
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            'Changes were saved.'
+        )
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('stockout:stockout-info', kwargs={'pk': self.object.pk})
+
+class StockoutDetailView(DetailView):
+    queryset = StockoutBasic.objects.all()
+    template_name = 'stockout_info.html'
+
+class StockoutDeleteView(DeleteView):
+    queryset = StockoutBasic.objects.all()
+    template_name = 'stockout_delete.html'
+
+    def get_success_url(self):
+        return reverse("stockout:stockout-list")
+
+class StockoutListView(ListView):
+    queryset = StockoutBasic.objects.all()
+    template_name = 'stockout_list.html'

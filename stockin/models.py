@@ -11,13 +11,13 @@ class StockinBasic(models.Model):
     memo = models.TextField(max_length=200)
 
     def get_absolute_url(self):
-        return reverse("stockin:stockin-info", kwargs={"pk": self.id})
+        return reverse("stock:stockin-info", kwargs={"pk": self.id})
 
     def get_update_url(self):
-        return reverse("stockin:stockin-update", kwargs={"pk": self.id})
+        return reverse("stock:stockin-update", kwargs={"pk": self.id})
 
     def get_delete_url(self):
-        return reverse("stockin:stockin-delete", kwargs={"pk": self.id})
+        return reverse("stock:stockin-delete", kwargs={"pk": self.id})
 
     def __str__(self):
         return self.code
@@ -36,6 +36,7 @@ class StockinDetail(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk is None:
+            self.barcode_count = 1 if self.item.unit.unique_barcode else int(self.amount)
             super(StockinDetail, self).save(*args, **kwargs)
             pk = StockinDetail.objects.filter(basic=self.basic).aggregate(models.Max('id'))['id__max']
 
@@ -51,6 +52,7 @@ class StockinDetail(models.Model):
         else:
             super(StockinDetail, self).save(*args, **kwargs)
  
+
 class Barcode(models.Model):
     stockin_detail = models.ForeignKey(StockinDetail, related_name='barcodes', on_delete=models.PROTECT)
     item = models.ForeignKey(ItemInfo, related_name='barcodes', on_delete=models.PROTECT)
@@ -60,4 +62,29 @@ class Barcode(models.Model):
 
     def __str__(self):
         return self.code
+
+
+class StockoutBasic(models.Model):
+    code = models.CharField(unique=True, max_length=12)
+    create_date = models.TimeField(auto_now_add=True)
+    operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockouts_operator", on_delete=models.PROTECT)
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockouts_client", on_delete=models.PROTECT)
+    memo = models.TextField(max_length=200)
+
+    def get_absolute_url(self):
+        return reverse("stock:stockout-info", kwargs={"pk": self.id})
+
+    def get_update_url(self):
+        return reverse("stock:stockout-update", kwargs={"pk": self.id})
+
+    def get_delete_url(self):
+        return reverse("stock:stockout-delete", kwargs={"pk": self.id})
+
+    def __str__(self):
+        return self.code
+
+class StockoutDetail(models.Model):
+    basic = models.ForeignKey(StockoutBasic, related_name='details', on_delete=models.CASCADE)
+    barcode = models.ForeignKey(Barcode, related_name='stockout_details', on_delete=models.PROTECT)
+    amount = models.DecimalField(max_digits=5, decimal_places=2)
 

@@ -1,39 +1,51 @@
-from django.forms.models import inlineformset_factory, ModelForm
-from .models import StockinBasic, StockinDetail 
-# from params.models import ItemInfo
+from typing_extensions import Required
+from django.forms.models import inlineformset_factory
+from django.forms import ModelForm, ValidationError, TextInput
+from .models import StockinBasic, StockinDetail, StockoutBasic, StockoutDetail
 
-class StockinModelForm(ModelForm):
+class StockinDetailForm(ModelForm):
     class Meta:
         model = StockinDetail
         fields = [
             'item',
-            'barcode_count',
             'amount',
             'price'
         ]
-
-    # def __init__(self, *args, **kwargs):
-        # super().__init__(*args, **kwargs)
-        # self.fields['item'].queryset = self.fields['item'].queryset.none()
 # 
-        # if 'type1' in self.data:
-            # try:
-                # type1Id = int(self.data.get('type1'))
-                # self.fields['type2'].queryset = ItemType.objects.filter(parent=type1Id).order_by('code')
-            # except(ValueError, TypeError):
-                # pass
-        # elif self.instance.pk:
-            # self.fields['type2'].queryset = self.instance.type1.type2_set.order_by('code')
-
-
+    def clean_amount(self):
+        item = self.cleaned_data['item']
+        data = self.cleaned_data['amount']
+        if not item.unit.unique_barcode and data<1:
+            raise ValidationError('单位"%s"数量需为整数' %(item.unit.name))
+        return data
 
 StockinDetailFormset = inlineformset_factory(
     StockinBasic,
     StockinDetail,
-    fields=(
-        'item',
-        'barcode_count',
-        'amount',
-        'price'
+    form = StockinDetailForm
+    )
+
+class StockoutDetailForm(ModelForm):
+    class Meta:
+        model = StockoutDetail
+        fields = (
+            'barcode',
+            'amount'
         )
+        widgets = {
+            'barcode': TextInput(),
+        }
+
+    def clean_amount(self):
+        item = self.cleaned_data['item']
+        data = self.cleaned_data['amount']
+        if not item.unit.unique_barcode and data<1:
+            raise ValidationError('单位"%s"数量需为整数' %(item.unit.name))
+        return data
+
+
+StockoutDetailFormset = inlineformset_factory(
+    StockoutBasic,
+    StockoutDetail,
+    form = StockoutDetailForm
     )

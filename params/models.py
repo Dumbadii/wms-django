@@ -40,7 +40,7 @@ ItemTypeReg = RegexValidator(r'^[A-Z][0-9]{0,3}$')
 class ItemType(models.Model):
     code = models.CharField(unique=True, max_length=7, validators=[ItemTypeReg])
     name = models.TextField(max_length=10)
-    parent = models.ForeignKey('self', on_delete=models.PROTECT, default=0)
+    parent = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
 
     def __unicode__(self):
         return u'%s-%s' %(self.code, self.name)
@@ -102,4 +102,4 @@ class ItemInfo(models.Model):
         return reverse("params:iteminfo-delete", kwargs={"pk": self.id})
 
     def __str__(self):
-        return '%s-%s' %(self.code, self.name)
+        return '%s-%s-%s' %(self.code, self.name, self.unit.name)

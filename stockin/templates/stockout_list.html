@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}stockin list{% endblock %}
+{% block title %}stockout list{% endblock %}
 
 {% block content %}
 
-<h1 class="h3">stockin list</h1>
+<h1 class="h3">stockout list</h1>
 
  {% if object_list %}
 
@@ -23,7 +23,7 @@
   {% endif %}
 
     <p class="pt-2">
-      <a href="{% url 'stock:stockin-home' %}" role="button" class="btn btn-secondary w-100">Cancel</a>
+      <a href="{% url 'stock:stockout-home' %}" role="button" class="btn btn-secondary w-100">Cancel</a>
     </p>
 
 {% endblock content %}
