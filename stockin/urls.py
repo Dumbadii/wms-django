@@ -24,7 +24,13 @@ from .views import (
     StockoutDetailView,
     StockoutDetailUpdateView,
     StockoutDeleteView,
-    StockoutListView
+    StockoutListView,
+    StockbackCreateView,
+    StockbackDetailView,
+    StockbackDetailUpdateView,
+    StockbackDeleteView,
+    StockbackListView,
+    load_barcode
 )
 
 app_name = 'stock'
@@ -40,5 +46,12 @@ urlpatterns = [
     path('out/create/', StockoutCreateView.as_view(), name='stockout-create'),
     path('out/update/<int:pk>/', StockoutDetailUpdateView.as_view(), name='stockout-update'),
     path('out/delete/<int:pk>/', StockoutDeleteView.as_view(), name='stockout-delete'),
-    path('out/<int:pk>/', StockoutDetailView.as_view(), name='stockout-info')
+    path('out/<int:pk>/', StockoutDetailView.as_view(), name='stockout-info'),
+    path('back/', StockbackListView.as_view(), name='stockback-home'),
+    path('back/list/', StockbackListView.as_view(), name='stockback-list'),
+    path('back/create/', StockbackCreateView.as_view(), name='stockback-create'),
+    path('back/update/<int:pk>/', StockbackDetailUpdateView.as_view(), name='stockback-update'),
+    path('back/delete/<int:pk>/', StockbackDeleteView.as_view(), name='stockback-delete'),
+    path('back/<int:pk>/', StockbackDetailView.as_view(), name='stockback-info'),
+    path('barcode/ajax/load-barcode/', load_barcode, name='ajax_load_barcode')
 ]

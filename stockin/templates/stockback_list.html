@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}stockback list{% endblock %}
+
+{% block content %}
+
+<h1 class="h3">stockback list</h1>
+
+ {% if object_list %}
+
+    <ul class="list-group">
+      {% for object in object_list %}
+        <li class="list-group-item">
+          <a class="text-reset" href="{{ object.get_absolute_url }}">{{ object.code }}-{{ object.operator }}-{{ object.created_date }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+
+  {% else %}
+
+    <p>There are no stockin to display.</p>
+
+  {% endif %}
+
+    <p class="pt-2">
+      <a href="{% url 'stock:stockback-home' %}" role="button" class="btn btn-secondary w-100">Cancel</a>
+    </p>
+
+{% endblock content %}

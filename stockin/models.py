@@ -1,4 +1,3 @@
-from logging import PlaceHolder
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
@@ -61,7 +60,7 @@ class Barcode(models.Model):
     amount_left = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
-        return self.code
+        return '%s-%s-%s' %(self.code, self.item.name, self.amount_left)
 
 
 class StockoutBasic(models.Model):
@@ -87,4 +86,44 @@ class StockoutDetail(models.Model):
     basic = models.ForeignKey(StockoutBasic, related_name='details', on_delete=models.CASCADE)
     barcode = models.ForeignKey(Barcode, related_name='stockout_details', on_delete=models.PROTECT)
     amount = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def save(self, *args, **kwargs):
+        if not self.pk: #不让修改，只能新增（暂时）
+            super(StockoutDetail, self).save(*args, **kwargs)
+
+            bc = self.barcode
+            bc.amount_left = bc.amount_init - bc.stockout_details.aggregate(models.Sum('amount'))['amount__sum']
+            bc.save()
+
+class StockbackBasic(models.Model):
+    code = models.CharField(unique=True, max_length=12)
+    create_date = models.TimeField(auto_now_add=True)
+    operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks_operator", on_delete=models.PROTECT)
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks_client", on_delete=models.PROTECT)
+    memo = models.TextField(max_length=200)
+
+    def get_absolute_url(self):
+        return reverse("stock:stockback-info", kwargs={"pk": self.id})
+
+    def get_update_url(self):
+        return reverse("stock:stockback-update", kwargs={"pk": self.id})
+
+    def get_delete_url(self):
+        return reverse("stock:stockback-delete", kwargs={"pk": self.id})
+
+    def __str__(self):
+        return self.code
+
+class StockbackDetail(models.Model):
+    basic = models.ForeignKey(StockbackBasic, related_name='details', on_delete=models.CASCADE)
+    barcode = models.ForeignKey(Barcode, related_name='stockback_details', on_delete=models.PROTECT)
+    amount = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def save(self, *args, **kwargs):
+        super(StockbackDetail, self).save(*args, **kwargs)
+
+        bc = self.barcode
+        bc.amount_left = bc.amount_init + bc.stockback_details.aggregate(models.Sum('amount'))['amount__sum'] \
+            - bc.stockout_details.aggregate(models.Sum('amount'))['amount__sum']
+        bc.save()
 

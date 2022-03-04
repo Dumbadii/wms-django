@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}Editing details for {{ stockinBasic.name }}{% endblock %}
+{% block title %}Editing details for {{ object.code }}{% endblock %}
 
 {% block content %}
   <form action="" method="post" enctype="multipart/form-data" id="stockinDetailForm" 
-    data-items-url="{% url 'params:iteminfo-ajax_load_items' %}" data-types-url="{% url 'params:itemtype-ajax_load_types' %}">
+    data-items-url="{% url 'params:ajax_load_items' %}" data-types-url="{% url 'params:ajax_load_types' %}">
 
     {% for hidden_field in form.hidden_fields %}
       {{ hidden_field.errors }}
@@ -34,11 +34,6 @@
         {{ hidden_field.errors }}
       {% endfor %}
 
-        <!-- {% for field in book_form %} -->
-          <!-- {{ field.errors }} -->
-          <!-- {{ field.label_tag }} {{ field }} -->
-          <!-- {{ field.widget.attrs}} -->
-        <!-- {% endfor %} -->
 
       <p><label for="id_{{ forloop.counter0 }}_type1">Type1:</label> <select name="type1" id="id_{{ forloop.counter0 }}_type1"
           child="id_{{ forloop.counter0 }}_type2"></select></p>
@@ -51,7 +46,7 @@
     <hr>
     <p>
       <button type="submit" value="Update collection" class="btn btn-primary w-100 mb-3">Update Collection</button>
-      <a href="{{ author.get_absolute_url  }}" role="button" class="btn btn-secondary w-100">Cancel</a>
+      <a href="{% url 'stock:stockin-info' object.id %}" role="button" class="btn btn-secondary w-100">Cancel</a>
     </p>
   </form>
 
@@ -63,9 +58,6 @@
       $(document).ready(function(){
         $.ajax({
             url: url_types,
-            // data: {
-                // 'type': 0
-            // },
             success: function(data) {
                 $('[name="type1"]').each(function(){$(this).html(data)});
             }

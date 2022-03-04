@@ -58,12 +58,12 @@ urlpatterns = [
     path('itemtype/<int:pk>/update/', ItemTypeUpdateView.as_view(), name='itemtype-update'),
     path('itemtype/<int:pk>/delete/', ItemTypeDeleteView.as_view(), name='itemtype-delete'),
     path('itemtype/create/', ItemTypeCreateView.as_view(), name='itemtype-create'),
-    path('itemtype/ajax/load-types/', load_types, name='itemtype-ajax_load_types'),
+    path('itemtype/ajax/load-types/', load_types, name='ajax_load_types'),
 
     path('iteminfo/list/', ItemInfoListView.as_view(), name='iteminfo-list'),
     path('iteminfo/<int:pk>/', ItemInfoDetailView.as_view(), name='iteminfo-detail'),
     path('iteminfo/<int:pk>/update/', ItemInfoUpdateView.as_view(), name='iteminfo-update'),
     path('iteminfo/<int:pk>/delete/', ItemInfoDeleteView.as_view(), name='iteminfo-delete'),
     path('iteminfo/create/', ItemInfoCreateView.as_view(), name='iteminfo-create'),
-    path('iteminfo/ajax/load-itmes/', load_items, name='iteminfo-ajax_load_items')
+    path('iteminfo/ajax/load-itmes/', load_items, name='ajax_load_items')
 ]
