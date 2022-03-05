@@ -8,15 +8,16 @@
             {% endfor %}
         </ul>
     {% endif %}
-    <h3>{{ object.id }} - {{ object.code }}</h3>
-    <div class="d-flex d-flex-inline"><span class="pe-2">入库单号:</span> <h5>{{ object.code }}</h5></div>
+    <h3>入库单号: {{ object.code }}</h3>
+    <!-- <div class="d-flex d-flex-inline"><span class="pe-2">入库单号:</span> <h5>{{ object.code }}</h5></div> -->
     <hr>
         {% for detail in object.details.all %}
-        <div class="small">品名:{{ detail.item }}({{ detail.list_barcodes }})</div>
+        <div class="small">{{ detail.item.name }}-{{ detail.amount }} {{ detail.item.unit.name }}({{ detail.list_barcodes }})</div>
         <hr>
         {% endfor %}
     <p>
         <a href="{{ object.get_update_url }}" role="button" class="btn btn-primary w-100 mb-2">Update</a>
-        <a href="{{ object.get_delete_url }}" role="button" class="btn btn-secondary w-100">Delete</a>
+        <a href="{{ object.get_delete_url }}" role="button" class="btn btn-secondary w-100 mb-2">Delete</a>
+        <a href="{% url 'stock:stockin-list' %}" role="button" class="btn btn-info w-100">Back</a>
     </p>
 {% endblock %}

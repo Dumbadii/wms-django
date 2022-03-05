@@ -55,7 +55,7 @@ class StockinDetailUpdateView(SingleObjectMixin, FormView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse('stockin:stockin-info', kwargs={'pk': self.object.pk})
+        return reverse('stock:stockin-info', kwargs={'pk': self.object.pk})
 
 
 class StockinDetailView(DetailView):
@@ -67,7 +67,7 @@ class StockinDeleteView(DeleteView):
     template_name = 'stockin_delete.html'
 
     def get_success_url(self):
-        return reverse("stockin:stockin-list")
+        return reverse("stock:stockin-list")
 
 class StockinListView(ListView):
     queryset = StockinBasic.objects.all()

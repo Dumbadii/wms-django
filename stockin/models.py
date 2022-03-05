@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import ValidationError
 from django.urls import reverse
 from django.conf import settings
 from params.models import ItemInfo
@@ -23,11 +24,18 @@ class StockinBasic(models.Model):
 
 class StockinDetail(models.Model):
     basic = models.ForeignKey(StockinBasic, related_name='details', on_delete=models.CASCADE)
-    item = models.ForeignKey(ItemInfo, related_name='stockin_details', on_delete=models.PROTECT)
+    item = models.ForeignKey(ItemInfo, related_name='stockin_details', on_delete=models.PROTECT, null=False, blank=False)
     barcode_count = models.IntegerField()
-    amount = models.DecimalField(max_digits=5, decimal_places=2)
+    amount = models.DecimalField(max_digits=5, decimal_places=2,validators=[])
     price = models.DecimalField(max_digits=8, decimal_places=2)
 
+    # def validate_amount(self,value):
+        # if value < 0:
+            # raise ValidationError(
+                # ('%(value)s must > 0'),
+                # params={'value': value},
+            # )
+            
     def list_barcodes(self):
         if self.barcode_count > 1:
             return '%s-%s' %(self.barcodes.all()[0].code, self.barcodes.all()[self.barcode_count-1].code)
@@ -53,7 +61,7 @@ class StockinDetail(models.Model):
  
 
 class Barcode(models.Model):
-    stockin_detail = models.ForeignKey(StockinDetail, related_name='barcodes', on_delete=models.PROTECT)
+    stockin_detail = models.ForeignKey(StockinDetail, related_name='barcodes', on_delete=models.CASCADE)
     item = models.ForeignKey(ItemInfo, related_name='barcodes', on_delete=models.PROTECT)
     code = models.CharField(unique=True, max_length=11)
     amount_init = models.DecimalField(max_digits=5, decimal_places=2)
