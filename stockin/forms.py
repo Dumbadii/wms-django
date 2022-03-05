@@ -1,6 +1,6 @@
 from django.forms.models import inlineformset_factory
 from django.forms import ModelForm, NumberInput, ValidationError
-from .models import StockinBasic, StockinDetail, StockoutBasic, StockoutDetail, StockbackBasic, StockbackDetail, Barcode
+from .models import StockinBasic, StockinDetail, StockoutBasic, StockoutDetail, StockbackBasic, StockbackDetail, Barcode,ItemInfo
 from django.forms.widgets import Select
 
 class StockinDetailForm(ModelForm):
@@ -11,11 +11,7 @@ class StockinDetailForm(ModelForm):
             'amount',
             'price'
         ]
-        widgets = {
-            'amount': NumberInput(),
-            'item': Select()
-        }
-# 
+
     def __init__(self, *args, **kwargs): 
         super(StockinDetailForm, self).__init__(*args, **kwargs)
         if self.instance.id:
@@ -23,14 +19,16 @@ class StockinDetailForm(ModelForm):
             used_barcodes = list(filter(lambda x: (x.stockout_details.count()>0), barcodes))
             used_count = len(used_barcodes)
             self.fields['amount'].widget.attrs = {'min': used_count}
+            out_count = len(list(filter(lambda x: (x.amount_init>x.amount_left), barcodes)))
+            if out_count:
+                self.fields['item'].empty_label = None
+                self.fields['item'].queryset = ItemInfo.objects.filter(id=self.instance.item.id)
 
     def clean(self):
         cleaned_data=super().clean()
-        print(cleaned_data)
         item = cleaned_data.get('item')
         amount = cleaned_data.get('amount')
         price = cleaned_data.get('price')
-        pk = cleaned_data.get('id') 
 
         if item and amount and price:
             if not item.unit.unique_barcode and amount<1:
@@ -38,11 +36,12 @@ class StockinDetailForm(ModelForm):
         else:
             raise ValidationError('all fields required')
 
-        if pk:
-            barcodes = self.instance.barcodes.all()
-            out_count = len(list(filter(lambda x: (x.amount_init>x.amount_left), barcodes)))
-            if out_count and item != self.instance.item:
-                raise ValidationError('部分物品已出库，不允许修改')
+        # pk = cleaned_data.get('id') 
+        # if pk:
+            # barcodes = self.instance.barcodes.all()
+            # out_count = len(list(filter(lambda x: (x.amount_init>x.amount_left), barcodes)))
+            # if out_count and item != self.instance.item:
+                # raise ValidationError('部分物品已出库，不允许修改')
 
         return cleaned_data
 
