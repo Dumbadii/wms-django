@@ -9,10 +9,9 @@
         </ul>
     {% endif %}
     <h3>入库单号: {{ object.code }}</h3>
-    <!-- <div class="d-flex d-flex-inline"><span class="pe-2">入库单号:</span> <h5>{{ object.code }}</h5></div> -->
     <hr>
         {% for detail in object.details.all %}
-        <div class="small">{{ detail.item.name }}-{{ detail.amount }} {{ detail.item.unit.name }}({{ detail.list_barcodes }})</div>
+        <div class="small">{{ detail.item.name }}-{{ detail.barcode_count }} {{ detail.item.unit.name }}({{ detail.list_barcodes }})</div>
         <hr>
         {% endfor %}
     <p>

@@ -1,13 +1,14 @@
+from django.db.models import Q
 from django.forms.models import inlineformset_factory
-from django.forms import ModelForm, NumberInput, ValidationError
+from django.forms import ModelForm, ValidationError
 from .models import StockinBasic, StockinDetail, StockoutBasic, StockoutDetail, StockbackBasic, StockbackDetail, Barcode,ItemInfo
-from django.forms.widgets import Select
 
 class StockinDetailForm(ModelForm):
     class Meta:
         model = StockinDetail
         fields = [
             'item',
+            'barcode_count',
             'amount',
             'price'
         ]
@@ -15,35 +16,12 @@ class StockinDetailForm(ModelForm):
     def __init__(self, *args, **kwargs): 
         super(StockinDetailForm, self).__init__(*args, **kwargs)
         if self.instance.id:
-            barcodes = self.instance.barcodes.all()
-            used_barcodes = list(filter(lambda x: (x.stockout_details.count()>0), barcodes))
-            used_count = len(used_barcodes)
-            self.fields['amount'].widget.attrs = {'min': used_count}
-            out_count = len(list(filter(lambda x: (x.amount_init>x.amount_left), barcodes)))
-            if out_count:
+            used_count = self.instance.barcodes.filter(~Q(status=0)).count()
+            in_count = self.instance.barcodes.filter(Q(status=0)|Q(status=2)).count()
+            self.fields['barcode_count'].widget.attrs = {'min': used_count, 'max': self.instance.barcode_count}
+            if self.instance.barcode_count > in_count:
                 self.fields['item'].empty_label = None
                 self.fields['item'].queryset = ItemInfo.objects.filter(id=self.instance.item.id)
-
-    def clean(self):
-        cleaned_data=super().clean()
-        item = cleaned_data.get('item')
-        amount = cleaned_data.get('amount')
-        price = cleaned_data.get('price')
-
-        if item and amount and price:
-            if not item.unit.unique_barcode and amount<1:
-                raise ValidationError('单位"%s"数量需为整数' %(item.unit.name))
-        else:
-            raise ValidationError('all fields required')
-
-        # pk = cleaned_data.get('id') 
-        # if pk:
-            # barcodes = self.instance.barcodes.all()
-            # out_count = len(list(filter(lambda x: (x.amount_init>x.amount_left), barcodes)))
-            # if out_count and item != self.instance.item:
-                # raise ValidationError('部分物品已出库，不允许修改')
-
-        return cleaned_data
 
 # StockinDetailFormset = inlineformset_factory(
     # StockinBasic,
@@ -63,8 +41,7 @@ class StockinDetailFormset(
             dele = form.cleaned_data.get('DELETE')
             if pk and dele:
                 barcodes = form.instance.barcodes.all()
-                used_barcodes = list(filter(lambda x: (x.stockout_details.count()>0), barcodes))
-                used_count = len(used_barcodes)
+                used_count = barcodes.filter(~Q(status=0)).count()
                 if used_count>0:
                     raise ValidationError('入库单物品已使用，不能删除')
 
@@ -81,15 +58,15 @@ class StockoutDetailForm(ModelForm):
         # self.fields['barcode'].queryset = Barcode.objects.filter(amount_left__gt=0)
 
         
-    def clean_amount(self):
-        barcode = self.cleaned_data['barcode']
-        data = self.cleaned_data['amount']
-        if not self.instance.id:
-            if not barcode.item.unit.unique_barcode and int(data)!=1:
-                raise ValidationError('单位"%s"数量需为整数' %(barcode.item.unit.name))
-            if data > barcode.amount_left:
-                raise ValidationError('出库数量大于库存数')
-        return data
+    # def clean_amount(self):
+        # barcode = self.cleaned_data['barcode']
+        # data = self.cleaned_data['amount']
+        # if not self.instance.id:
+            # if not barcode.item.unit.unique_barcode and int(data)!=1:
+                # raise ValidationError('单位"%s"数量需为整数' %(barcode.item.unit.name))
+            # if data > barcode.amount_left:
+                # raise ValidationError('出库数量大于库存数')
+        # return data
 
 
 

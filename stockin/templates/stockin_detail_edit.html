@@ -34,11 +34,12 @@
         {{ hidden_field.errors }}
       {% endfor %}
 
-
-      <p><label for="id_{{ forloop.counter0 }}_type1">Type1:</label> <select name="type1" id="id_{{ forloop.counter0 }}_type1"
-          child="id_{{ forloop.counter0 }}_type2"></select></p>
-      <p><label for="id_{{ forloop.counter0 }}_type2">Type2:</label> <select name="type2" id="id_{{ forloop.counter0 }}_type2"
-          child="id_details-{{ forloop.counter0 }}-item"></select></p>
+      {% if book_form.fields.item.queryset.count > 1 %}
+        <p><label for="id_{{ forloop.counter0 }}_type1">Type1:</label> <select name="type1" id="id_{{ forloop.counter0 }}_type1"
+            child="id_{{ forloop.counter0 }}_type2"></select></p>
+        <p><label for="id_{{ forloop.counter0 }}_type2">Type2:</label> <select name="type2" id="id_{{ forloop.counter0 }}_type2"
+            child="id_details-{{ forloop.counter0 }}-item"></select></p>
+      {% endif %}
       <table>
         {{ book_form.as_table }}
       </table>

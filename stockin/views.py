@@ -16,7 +16,7 @@ from .forms import StockinDetailFormset, StockoutDetailFormset, StockbackDetailF
 class StockinCreateView(CreateView):
     model = StockinBasic
     template_name = 'stockin_create.html'
-    fields = ['code', 'operator', 'memo']
+    fields = ['operator', 'memo']
 
     def form_valid(self, form):
 
