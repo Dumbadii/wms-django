@@ -19,18 +19,19 @@ from .views import (
     StockinDetailView,
     StockinDetailUpdateView,
     StockinDeleteView,
+    StockinConfirmView,
     StockinListView,
     StockoutCreateView,
     StockoutDetailView,
     StockoutDetailUpdateView,
     StockoutDeleteView,
     StockoutListView,
+    StockoutConfirmView,
     StockbackCreateView,
     StockbackDetailView,
     StockbackDetailUpdateView,
     StockbackDeleteView,
     StockbackListView,
-    load_barcode
 )
 
 app_name = 'stock'
@@ -41,17 +42,18 @@ urlpatterns = [
     path('in/update/<int:pk>/', StockinDetailUpdateView.as_view(), name='stockin-update'),
     path('in/delete/<int:pk>/', StockinDeleteView.as_view(), name='stockin-delete'),
     path('in/<int:pk>/', StockinDetailView.as_view(), name='stockin-info'),
+    path('in/confirm/<int:pk>/', StockinConfirmView.as_view(), name='stockin-confirm'),
     path('out/', StockoutListView.as_view(), name='stockout-home'),
     path('out/list/', StockoutListView.as_view(), name='stockout-list'),
     path('out/create/', StockoutCreateView.as_view(), name='stockout-create'),
     path('out/update/<int:pk>/', StockoutDetailUpdateView.as_view(), name='stockout-update'),
     path('out/delete/<int:pk>/', StockoutDeleteView.as_view(), name='stockout-delete'),
     path('out/<int:pk>/', StockoutDetailView.as_view(), name='stockout-info'),
+    path('out/confirm/<int:pk>/', StockoutConfirmView.as_view(), name='stockout-confirm'),
     path('back/', StockbackListView.as_view(), name='stockback-home'),
     path('back/list/', StockbackListView.as_view(), name='stockback-list'),
     path('back/create/', StockbackCreateView.as_view(), name='stockback-create'),
     path('back/update/<int:pk>/', StockbackDetailUpdateView.as_view(), name='stockback-update'),
     path('back/delete/<int:pk>/', StockbackDeleteView.as_view(), name='stockback-delete'),
     path('back/<int:pk>/', StockbackDetailView.as_view(), name='stockback-info'),
-    path('barcode/ajax/load-barcode/', load_barcode, name='ajax_load_barcode')
 ]

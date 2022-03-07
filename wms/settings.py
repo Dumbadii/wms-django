@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'unit',
     'params',
     'stockin',
-    'extra_views',
+    # 'django-filters',
 ]
 
 MIDDLEWARE = [
