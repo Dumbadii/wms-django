@@ -1,11 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Editing details for {{ stockinBasic.name }}{% endblock %}
+{% block title %}Editing details for {{ object.code }}{% endblock %}
 
 {% block content %}
-  <form action="" method="post" enctype="multipart/form-data" id="stockoutDetailForm" 
-    data-items-url="{% url 'params:ajax_load_items' %}" data-types-url="{% url 'params:ajax_load_types' %}"
-    data-barcode-url="{% url 'stock:ajax_load_barcode' %}">
+  <form action="" method="post" enctype="multipart/form-data" id="stockoutDetailForm">
 
     {% for hidden_field in form.hidden_fields %}
       {{ hidden_field.errors }}
@@ -21,20 +19,11 @@
     {% for book_form in form.forms %}
       <hr>
       <h5>
-        {% if book_form.instance.id %}
-          Book{{ forloop.counter }}: {{ book_form.instance.code }}
-        {% else %}
-          {% if form.forms|length > 1 %}
-            Add another book
-          {% else %}
-            Add a book
-          {% endif %}
-            <p>
-              <label for="id_{{ forloop.counter0 }}_barcode">条码:</label>
-              <input type="text" name="barcode" maxlength="11" id="id_{{ forloop.counter0 }}_barcode" 
-                child="#id_details-{{ forloop.counter0 }}-barcode">
-            </p>
-        {% endif %}
+      <p>
+        <label for="id_{{ forloop.counter0 }}_barcode">条码:</label>
+        <input type="text" name="barcode" maxlength="11" id="id_{{ forloop.counter0 }}_barcode" 
+          child="#id_details-{{ forloop.counter0 }}-barcode">
+      </p>
       </h5>
       {% for hidden_field in book_form.hidden_fields %}
         {{ hidden_field.errors }}
@@ -53,27 +42,22 @@
 
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script>
-      var url_barcode = $("#stockoutDetailForm").attr("data-barcode-url");
-
       $(document).ready(function(){
-        $('[name="barcode"]').each(function(){$(this).change(function(){
-          object = $($(this).attr('child'));
+        $('[name="barcode"]').each(function(){$(this).keyup(function(){
           if($(this).val().length==11) {
-            $.ajax({
-                url: url_barcode,
-                data: {
-                    'code': $(this).val() 
-                },
-                success: function(data) {
-                    pk=(eval(data));
-                    object.val(pk);
-                }
-            });
+            text = $(this).val();
+            $($(this).attr('child') + " option:contains(" + text +")").attr('selected', 'selected');
           }
-  
         })})
+
+      $(window).keydown(function(event){
+        if(event.keyCode == 13) {
+          event.preventDefault();
+          return false;
+        }
+      });
+
      });
   </script>
-
 
 {% endblock content %}

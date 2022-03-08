@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib import messages
 from django_filters.views import FilterView
-from .models import Barcode, StockinBasic, StockoutBasic, StockbackBasic, StockinDetail
+from .models import StockinBasic, StockoutBasic, StockbackBasic, StockinDetail
 from django.views.generic import (
     ListView,
     DetailView,
@@ -18,7 +18,8 @@ from .forms import (
     StockoutDetailFormset, 
     StockbackDetailFormset, 
     StockinConfirmForm,
-    StockoutConfirmForm
+    StockoutConfirmForm,
+    StockbackConfirmForm
 )
 
 class StockinCreateView(CreateView):
@@ -145,6 +146,10 @@ class StockoutConfirmView(UpdateView):
     def form_valid(self, form):
         self.object.confirmed = True
         self.object.save()
+        for detail in self.object.details.all():
+            detail.barcode.status = 1
+            detail.barcode.save()
+
 
         messages.add_message(
             self.request,
@@ -167,7 +172,7 @@ class StockoutListView(ListView):
 class StockbackCreateView(CreateView):
     model = StockbackBasic
     template_name = 'stockback_create.html'
-    fields = ['code', 'operator', 'client', 'memo']
+    fields = ['operator', 'client', 'memo']
 
     def form_valid(self, form):
 
@@ -247,4 +252,26 @@ class StockinConfirmView(UpdateView):
     def get_success_url(self):
         return reverse('stock:stockin-info', kwargs={'pk': self.object.pk})
 
+class StockbackConfirmView(UpdateView):
+    form_class = StockbackConfirmForm
+    template_name = 'stock_confirm.html'
+    queryset = StockbackBasic.objects.all()
+
+    def form_valid(self, form):
+        self.object.confirmed = True
+        self.object.save()
+        for detail in self.object.details.all():
+            detail.barcode.status = 2
+            detail.barcode.save()
+
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            'stockback were confirmed.'
+        )
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('stock:stockback-info', kwargs={'pk': self.object.pk})
 

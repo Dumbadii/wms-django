@@ -88,7 +88,7 @@ class StockoutBasic(models.Model):
     def save(self, *args, **kwargs):
         if self.pk is None:
             code_prefix = 'SO' + datetime.today().strftime('%y%m%d')
-            objects = StockinBasic.objects.filter(code__startswith=code_prefix).all()
+            objects = StockoutBasic.objects.filter(code__startswith=code_prefix).all()
             if objects:
                 max_code = objects.aggregate(models.Max('code'))['code__max']
                 self.code = code_prefix + ('000' + str(int(max_code[-3:]) + 1))[-3:]
@@ -123,6 +123,20 @@ class StockbackBasic(models.Model):
     operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks_operator", on_delete=models.PROTECT)
     client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks_client", on_delete=models.PROTECT)
     memo = models.TextField(max_length=200)
+    confirmed = models.BooleanField(default=False)
+ 
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            code_prefix = 'SB' + datetime.today().strftime('%y%m%d')
+            objects = StockbackBasic.objects.filter(code__startswith=code_prefix).all()
+            if objects:
+                max_code = objects.aggregate(models.Max('code'))['code__max']
+                self.code = code_prefix + ('000' + str(int(max_code[-3:]) + 1))[-3:]
+            else:
+                self.code = code_prefix + '001'
+
+        super(StockbackBasic, self).save(*args, **kwargs)
+
 
     def get_absolute_url(self):
         return reverse("stock:stockback-info", kwargs={"pk": self.id})
@@ -133,18 +147,12 @@ class StockbackBasic(models.Model):
     def get_delete_url(self):
         return reverse("stock:stockback-delete", kwargs={"pk": self.id})
 
+    def get_confirm_url(self):
+        return reverse("stock:stockback-confirm", kwargs={"pk": self.id})
+
     def __str__(self):
         return self.code
 
 class StockbackDetail(models.Model):
     basic = models.ForeignKey(StockbackBasic, related_name='details', on_delete=models.CASCADE)
     barcode = models.ForeignKey(Barcode, related_name='stockback_details', on_delete=models.PROTECT)
-    amount = models.DecimalField(max_digits=5, decimal_places=2)
-
-    def save(self, *args, **kwargs):
-        super(StockbackDetail, self).save(*args, **kwargs)
-
-        bc = self.barcode
-        bc.status = 2
-        bc.save()
-

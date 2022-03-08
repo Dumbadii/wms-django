@@ -43,6 +43,7 @@ class StockoutDetailForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(StockoutDetailForm, self).__init__(*args, **kwargs)
         self.fields['barcode'].queryset = Barcode.objects.filter(Q(status=0) | Q(status=2))
+
 class StockoutDetailFormset(
     inlineformset_factory(StockoutBasic, StockoutDetail, form=StockoutDetailForm, extra=3)):
     def clean(self):
@@ -65,11 +66,24 @@ class StockbackDetailForm(ModelForm):
             'barcode',
         )
 
-StockbackDetailFormset = inlineformset_factory(
-    StockbackBasic,
-    StockbackDetail,
-    form = StockbackDetailForm
-    )
+    def __init__(self, *args, **kwargs):
+        super(StockbackDetailForm, self).__init__(*args, **kwargs)
+        self.fields['barcode'].queryset = Barcode.objects.filter(status=1)
+
+class StockbackDetailFormset(
+    inlineformset_factory(StockbackBasic, StockbackDetail, form=StockbackDetailForm, extra=3)):
+    def clean(self):
+        super(StockbackDetailFormset, self).clean()
+
+        barcodes = []
+        for form in self.forms:
+            barcode = form.cleaned_data.get('barcode')
+            print(barcodes)
+
+            if barcode in barcodes:
+                raise ValidationError('%s already used.' %(barcode))
+            elif barcode != None:
+                barcodes.append(barcode)
 
 class StockinConfirmForm(ModelForm):
     class Meta:

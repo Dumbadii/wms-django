@@ -32,6 +32,7 @@ from .views import (
     StockbackDetailUpdateView,
     StockbackDeleteView,
     StockbackListView,
+    StockbackConfirmView
 )
 
 app_name = 'stock'
@@ -56,4 +57,5 @@ urlpatterns = [
     path('back/update/<int:pk>/', StockbackDetailUpdateView.as_view(), name='stockback-update'),
     path('back/delete/<int:pk>/', StockbackDeleteView.as_view(), name='stockback-delete'),
     path('back/<int:pk>/', StockbackDetailView.as_view(), name='stockback-info'),
+    path('back/confirm/<int:pk>/', StockbackConfirmView.as_view(), name='stockback-confirm')
 ]
