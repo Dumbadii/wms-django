@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}stockin list{% endblock %}
+
+{% block content %}
+
+<h1 class="h3">stockin list</h1>
+    <form method="get">
+        {{ filterset.form.as_p }}
+        <input type="submit" value="query"/>
+    </form>
+
+    {% if object_list %}
+
+    <ul class="list-group">
+      {% for object in object_list %}
+        <li class="list-group-item">
+          <a class="text-reset" href="{{ object.get_absolute_url }}">{{ object.code }}-{{ object.operator }}-{{ object.created_date }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+
+  {% else %}
+
+    <p>There are no stockin to display.</p>
+
+  {% endif %}
+
+    <p class="pt-2">
+      <a href="{% url 'stock:stockin-create' %}" role="button" class="btn btn-primary w-100 mb-2">Add</a>
+      <a href="{% url 'stock:stockin-home' %}" role="button" class="btn btn-secondary w-100">Cancel</a>
+    </p>
+
+{% load my_tags %}
+
+{% if is_paginated %}
+  {% if page_obj.has_previous %}
+    <a href="?{% param_replace page=1 %}">First</a>
+    {% if page_obj.previous_page_number != 1 %}
+      <a href="?{% param_replace page=page_obj.previous_page_number %}">Previous</a>
+    {% endif %}
+  {% endif %}
+
+  Page {{ page_obj.number }} of {{ paginator.num_pages }}
+
+  {% if page_obj.has_next %}
+    {% if page_obj.next_page_number != paginator.num_pages %}
+      <a href="?{% param_replace page=page_obj.next_page_number %}">Next</a>
+    {% endif %}
+    <a href="?{% param_replace page=paginator.num_pages %}">Last</a>
+  {% endif %}
+
+  <p>Objects {{ page_obj.start_index }}—{{ page_obj.end_index }}</p>
+{% endif %}
+{% endblock content %}

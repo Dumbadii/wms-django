@@ -5,7 +5,9 @@
 {% block content %}
 
 <h1 class="h3">stockin list</h1>
-
+ {% if is_paginated %}
+  hello world
+ {% endif %}
  {% if object_list %}
 
     <ul class="list-group">

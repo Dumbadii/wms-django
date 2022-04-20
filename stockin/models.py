@@ -2,13 +2,14 @@ from django.db import models
 from django.forms import ValidationError
 from django.urls import reverse
 from django.conf import settings
-from params.models import ItemInfo
+from params.models import ItemInfo, BarcodeStatus,Department
 from datetime import datetime
 
 class StockinBasic(models.Model):
-    code = models.CharField(unique=True, max_length=11)
-    create_date = models.TimeField(auto_now_add=True)
+    code = models.CharField(unique=True, max_length=11, null=True, blank=True)
+    create_date = models.DateTimeField(auto_now_add=True)
     operator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    vendor =models.CharField(max_length=50, null=True, blank=True)
     memo = models.TextField(max_length=200)
     confirmed = models.BooleanField(default=False)
 
@@ -27,6 +28,9 @@ class StockinBasic(models.Model):
     def get_absolute_url(self):
         return reverse("stock:stockin-info", kwargs={"pk": self.id})
 
+    def get_pdf_url(self):
+        return reverse("stock:stockin-pdf", kwargs={"pk": self.id})
+
     def get_update_url(self):
         return reverse("stock:stockin-update", kwargs={"pk": self.id})
 
@@ -37,7 +41,7 @@ class StockinBasic(models.Model):
         return reverse("stock:stockin-confirm", kwargs={"pk": self.id})
 
     def __str__(self):
-        return self.code
+        return '%s-%s' %(self.id,self.code)
 
 class StockinDetail(models.Model):
     basic = models.ForeignKey(StockinBasic, related_name='details', on_delete=models.PROTECT)
@@ -70,18 +74,18 @@ class Barcode(models.Model):
     item = models.ForeignKey(ItemInfo, related_name='barcodes', on_delete=models.PROTECT)
     code = models.CharField(unique=True, max_length=11)
     amount = models.DecimalField(max_digits=5, decimal_places=2)
-    # status{0:in, 1:out, 2:back, 3:disabled}
-    status = models.IntegerField(default=0)
+    status = models.ForeignKey(BarcodeStatus, to_field='statusId', related_name='barcodes', on_delete=models.PROTECT,default=0)
 
     def __str__(self):
-        return '%s-%s-%s' %(self.code, self.item.name, self.status)
+        return '%s-%s' %(self.code, self.item.name)
 
 
 class StockoutBasic(models.Model):
     code = models.CharField(unique=True, max_length=12)
-    create_date = models.TimeField(auto_now_add=True)
+    create_date = models.DateTimeField(auto_now_add=True)
     operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockouts_operator", on_delete=models.PROTECT)
     client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockouts_client", on_delete=models.PROTECT)
+    department = models.ForeignKey(Department, related_name="stockouts", on_delete=models.PROTECT)
     memo = models.TextField(max_length=200)
     confirmed = models.BooleanField(default=False)
 
@@ -98,6 +102,9 @@ class StockoutBasic(models.Model):
         super(StockoutBasic, self).save(*args, **kwargs)
 
  
+    def get_pdf_url(self):
+        return reverse("stock:stockout-pdf", kwargs={"pk": self.id})
+
     def get_absolute_url(self):
         return reverse("stock:stockout-info", kwargs={"pk": self.id})
 
@@ -119,7 +126,7 @@ class StockoutDetail(models.Model):
 
 class StockbackBasic(models.Model):
     code = models.CharField(unique=True, max_length=12)
-    create_date = models.TimeField(auto_now_add=True)
+    create_date = models.DateTimeField(auto_now_add=True)
     operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks_operator", on_delete=models.PROTECT)
     client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks_client", on_delete=models.PROTECT)
     memo = models.TextField(max_length=200)
@@ -137,6 +144,9 @@ class StockbackBasic(models.Model):
 
         super(StockbackBasic, self).save(*args, **kwargs)
 
+
+    def get_pdf_url(self):
+        return reverse("stock:stockback-pdf", kwargs={"pk": self.id})
 
     def get_absolute_url(self):
         return reverse("stock:stockback-info", kwargs={"pk": self.id})

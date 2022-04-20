@@ -19,7 +19,10 @@
         <a href="{{ object.get_update_url }}" role="button" class="btn btn-primary w-100 mb-2">Update</a>
         <a href="{{ object.get_confirm_url }}" role="button" class="btn btn-success w-100 mb-2">Confirm</a>
         <a href="{{ object.get_delete_url }}" role="button" class="btn btn-secondary w-100 mb-2">Delete</a>
+        {% else %}
+        <a target="_blank" href="{{ object.get_pdf_url }}" role="button" class="btn btn-primary w-100 mb-2">Print</a>
         {% endif %}
         <a href="{% url 'stock:stockout-list' %}" role="button" class="btn btn-info w-100">Back</a>
+
     </p>
 {% endblock %}

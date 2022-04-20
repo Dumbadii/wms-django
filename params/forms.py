@@ -7,7 +7,6 @@ class UnitModelForm(forms.ModelForm):
         fields = [
             'code',
             'name',
-            'unique_barcode'
         ]
 
 class DepartmentModelForm(forms.ModelForm):

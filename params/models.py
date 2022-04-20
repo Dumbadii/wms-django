@@ -2,12 +2,18 @@ from django.db import models
 from django.urls import reverse
 from django.core.validators import RegexValidator
 
+# Create your models here.
+class BarcodeStatus(models.Model):
+    statusId = models.IntegerField(unique=True)
+    statusName = models.TextField(max_length=10)
+    def __str__(self):
+        return '%s-%s' %(self.statusId, self.statusName)
+
 UnitCodeReg = RegexValidator(r'^[0-9]{3}$', '3 digits requires')
 # Create your models here.
 class Unit(models.Model):
     code = models.CharField(unique=True, max_length=3, validators=[UnitCodeReg])
     name = models.TextField(max_length=10)
-    unique_barcode = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse("params:unit-detail", kwargs={"pk": self.id})
@@ -19,7 +25,7 @@ class Unit(models.Model):
         return reverse("params:unit-delete", kwargs={"pk": self.id})
 
     def __str__(self):
-        return '%s-%s' %(self.code, self.name)
+        return self.name
 
 DepartmentCodeReg = UnitCodeReg
 class Department(models.Model):
@@ -34,11 +40,14 @@ class Department(models.Model):
 
     def get_delete_url(self):
         return reverse("params:department-delete", kwargs={"pk": self.id})
+    
+    def __str__(self):
+        return '%s-%s' %(self.code, self.name)
 
 
 ItemTypeReg = RegexValidator(r'^[A-Z][0-9]{0,3}$')
 class ItemType(models.Model):
-    code = models.CharField(unique=True, max_length=7, validators=[ItemTypeReg])
+    code = models.CharField(unique=True, max_length=7, validators=[ItemTypeReg], null=True, blank=True)
     name = models.TextField(max_length=10)
     parent = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
 
@@ -71,7 +80,7 @@ class ItemType(models.Model):
 
 ItemCodeReg = RegexValidator(r'^[A-Z][0-9]{6}$')
 class ItemInfo(models.Model):
-    code = models.CharField(unique=True, max_length=7, validators=[ItemCodeReg])
+    code = models.CharField(unique=True, max_length=7, validators=[ItemCodeReg], null=True, blank=True)
     name = models.CharField(unique=True, max_length=100)
     specification = models.TextField(max_length=500)
     type1 = models.ForeignKey(ItemType, on_delete=models.PROTECT, related_name='parent_type')
