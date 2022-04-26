@@ -3,6 +3,7 @@ from django.forms import ValidationError
 from django.urls import reverse
 from django.conf import settings
 from params.models import ItemInfo, BarcodeStatus,Department
+from user.models import Employee
 from datetime import datetime
 
 class StockinBasic(models.Model):
@@ -74,17 +75,18 @@ class Barcode(models.Model):
     item = models.ForeignKey(ItemInfo, related_name='barcodes', on_delete=models.PROTECT)
     code = models.CharField(unique=True, max_length=11)
     amount = models.DecimalField(max_digits=5, decimal_places=2)
-    status = models.ForeignKey(BarcodeStatus, to_field='statusId', related_name='barcodes', on_delete=models.PROTECT,default=0)
+    status = models.ForeignKey(BarcodeStatus, related_name='barcodes', on_delete=models.PROTECT,default=1)
 
     def __str__(self):
         return '%s-%s' %(self.code, self.item.name)
 
 
 class StockoutBasic(models.Model):
-    code = models.CharField(unique=True, max_length=12)
+    code = models.CharField(unique=True, max_length=12, null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
-    operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockouts_operator", on_delete=models.PROTECT)
-    client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockouts_client", on_delete=models.PROTECT)
+    operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockouts_operator", 
+        on_delete=models.PROTECT, null=True, blank=True)
+    employee = models.ForeignKey(Employee, related_name="stockouts", on_delete=models.PROTECT)
     department = models.ForeignKey(Department, related_name="stockouts", on_delete=models.PROTECT)
     memo = models.TextField(max_length=200)
     confirmed = models.BooleanField(default=False)
@@ -127,8 +129,9 @@ class StockoutDetail(models.Model):
 class StockbackBasic(models.Model):
     code = models.CharField(unique=True, max_length=12)
     create_date = models.DateTimeField(auto_now_add=True)
-    operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks_operator", on_delete=models.PROTECT)
-    client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks_client", on_delete=models.PROTECT)
+    operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks", on_delete=models.PROTECT)
+    employee = models.ForeignKey(Employee, related_name="stockbacks", on_delete=models.PROTECT)
+    department = models.ForeignKey(Department, related_name="stockbacks", on_delete=models.PROTECT)
     memo = models.TextField(max_length=200)
     confirmed = models.BooleanField(default=False)
  
