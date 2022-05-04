@@ -75,6 +75,7 @@ class Barcode(models.Model):
     item = models.ForeignKey(ItemInfo, related_name='barcodes', on_delete=models.PROTECT)
     code = models.CharField(unique=True, max_length=11)
     amount = models.DecimalField(max_digits=5, decimal_places=2)
+    department = models.ForeignKey(Department, related_name='barcodes', on_delete=models.PROTECT)
     status = models.ForeignKey(BarcodeStatus, related_name='barcodes', on_delete=models.PROTECT,default=1)
 
     def __str__(self):
@@ -127,9 +128,10 @@ class StockoutDetail(models.Model):
     barcode = models.ForeignKey(Barcode, related_name='stockout_details', on_delete=models.PROTECT)
 
 class StockbackBasic(models.Model):
-    code = models.CharField(unique=True, max_length=12)
+    code = models.CharField(unique=True, max_length=12, null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
-    operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks", on_delete=models.PROTECT)
+    operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockbacks", 
+        on_delete=models.PROTECT, null=True, blank=True)
     employee = models.ForeignKey(Employee, related_name="stockbacks", on_delete=models.PROTECT)
     department = models.ForeignKey(Department, related_name="stockbacks", on_delete=models.PROTECT)
     memo = models.TextField(max_length=200)
@@ -169,3 +171,28 @@ class StockbackBasic(models.Model):
 class StockbackDetail(models.Model):
     basic = models.ForeignKey(StockbackBasic, related_name='details', on_delete=models.CASCADE)
     barcode = models.ForeignKey(Barcode, related_name='stockback_details', on_delete=models.PROTECT)
+
+# stockdisabled-----------------------------
+class StockdisableBasic(models.Model):
+    code = models.CharField(unique=True, max_length=12, null=True, blank=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    operator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stockdisables", 
+        on_delete=models.PROTECT, null=True, blank=True)
+    memo = models.TextField(max_length=200)
+    confirmed = models.BooleanField(default=False)
+ 
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            code_prefix = 'SD' + datetime.today().strftime('%y%m%d')
+            objects = StockdisableBasic.objects.filter(code__startswith=code_prefix).all()
+            if objects:
+                max_code = objects.aggregate(models.Max('code'))['code__max']
+                self.code = code_prefix + ('000' + str(int(max_code[-3:]) + 1))[-3:]
+            else:
+                self.code = code_prefix + '001'
+
+        super(StockdisableBasic, self).save(*args, **kwargs)
+
+class StockdisableDetail(models.Model):
+    basic = models.ForeignKey(StockdisableBasic, related_name='details', on_delete=models.CASCADE)
+    barcode = models.ForeignKey(Barcode, related_name='stockdisable_details', on_delete=models.PROTECT)
