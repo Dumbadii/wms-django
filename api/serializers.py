@@ -180,7 +180,7 @@ class StockinBasicSerializer(serializers.ModelSerializer):
         model = StockinBasic
         fields = (
             "id",
-            "code",
+            # "code",
             "vendor",
             "memo",
             "details",

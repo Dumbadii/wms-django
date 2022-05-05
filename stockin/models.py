@@ -75,7 +75,7 @@ class Barcode(models.Model):
     item = models.ForeignKey(ItemInfo, related_name='barcodes', on_delete=models.PROTECT)
     code = models.CharField(unique=True, max_length=11)
     amount = models.DecimalField(max_digits=5, decimal_places=2)
-    department = models.ForeignKey(Department, related_name='barcodes', on_delete=models.PROTECT)
+    department = models.ForeignKey(Department, related_name='barcodes', on_delete=models.PROTECT, default=1)
     status = models.ForeignKey(BarcodeStatus, related_name='barcodes', on_delete=models.PROTECT,default=1)
 
     def __str__(self):

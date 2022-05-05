@@ -47,8 +47,8 @@ from user.models import Employee
 
 # Create your views here.
 class BarcodesByDetail(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, detail):
         barcodes = Barcode.objects.filter(stockin_detail=detail)
@@ -57,8 +57,8 @@ class BarcodesByDetail(APIView):
         return Response(serializer.data)
 
 class BarcodesByStatus(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, statusId):
         print('statusId:',statusId)
@@ -79,8 +79,8 @@ class Type2List(APIView):
         return Response(serializer.data)
 
 class ItemsAll(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         items = ItemInfo.objects.all()
@@ -88,8 +88,8 @@ class ItemsAll(APIView):
         return Response(serializer.data)
 
 class ItemsIn(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         items = ItemInfo.objects.all()
@@ -97,8 +97,8 @@ class ItemsIn(APIView):
         return Response(serializer.data)
 
 class EmployeeList(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         employees = Employee.objects.all()
@@ -106,8 +106,8 @@ class EmployeeList(APIView):
         return Response(serializer.data)
 
 class DepartmentList(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         departments = Department.objects.all()
@@ -115,8 +115,8 @@ class DepartmentList(APIView):
         return Response(serializer.data)
 
 class StatusList(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         status = BarcodeStatus.objects.all()
@@ -159,8 +159,8 @@ class StockinConfirm(APIView):
         return Response('%s confirmed' %(basic.code))
 
 class StockinInfo(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
         basic = StockinBasic.objects.get(pk=pk)
@@ -197,8 +197,8 @@ def stockout_save(request):
   return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class StockoutInfo(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
         basic = StockoutBasic.objects.get(pk=pk)
@@ -253,8 +253,8 @@ def stockback_save(request):
   return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class StockbackInfo(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
         basic = StockbackBasic.objects.get(pk=pk)
@@ -309,8 +309,8 @@ def stockdisable_save(request):
   return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class StockdisableInfo(APIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
         basic = StockdisableBasic.objects.get(pk=pk)
@@ -344,8 +344,8 @@ class StockdisableList(generics.ListAPIView):
 
 # search filter-------------------
 class BarcodeSearch(generics.ListAPIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     pagination_class = PageNumberPagination
     queryset = Barcode.objects.all()
