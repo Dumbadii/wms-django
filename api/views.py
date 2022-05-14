@@ -1,3 +1,7 @@
+import pdfkit
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.template.loader import get_template
 from re import I
 from django.shortcuts import render
 from django.contrib.auth.models import User
@@ -129,7 +133,6 @@ class StatusList(APIView):
 @permission_classes([permissions.IsAuthenticated])
 def stockin_save(request):
   pk = int(request.data['id'])
-  print(request.data)
   if pk > 0:
     obj = StockinBasic.objects.get(id=pk)
     serializer = StockinBasicSerializer(obj,data=request.data)
@@ -152,7 +155,6 @@ class StockinConfirm(APIView):
         basic = StockinBasic.objects.get(id=pk)
         basic.confirmed = True
         basic.save()
-        print('%s confirmed' %(pk))
         for detail in basic.details.all():
           detail.gen_barcode()
         # serializer = StockinBasicGetSerializer(basic)
@@ -297,15 +299,12 @@ def stockdisable_save(request):
     serializer = StockdisableBasicSerializer(obj,data=request.data)
   else:
     serializer = StockdisableBasicSerializer(data=request.data)
-  print(request.data)
   if serializer.is_valid():
     try:
         serializer.save(operator=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Exception:
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-  print('not validate')
-  print(serializer.errors)
   return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class StockdisableInfo(APIView):
@@ -402,5 +401,60 @@ class InventoryStat(APIView):
         'disableCnt': disableCnt,
         'deptStat': deptStat
       }
-      print(result)
       return Response(result)
+
+# @api_view(['GET'])
+# @authentication_classes([authentication.TokenAuthentication])
+# @permission_classes([permissions.IsAuthenticated])
+def stockin_pdf(request, pk):
+    stockin = get_object_or_404(StockinBasic, pk=pk)
+    # template = 'stockin_pdf.html'
+    # return render(request, template, {'stockin': stockin})
+    template = get_template('stockin_pdf.html')
+    html = template.render({'stockin': stockin})
+    pdf = pdfkit.from_string(html, False, options={})
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="%s.pdf"' %(stockin.code)
+    return response
+
+# @api_view(['GET'])
+# @authentication_classes([authentication.TokenAuthentication])
+# @permission_classes([permissions.IsAuthenticated])
+def stockout_pdf(request, pk):
+    stockout = get_object_or_404(StockoutBasic, pk=pk)
+    # template = 'stockout_pdf.html'
+    # return render(request, template, {'stockout': stockout})
+    template = get_template('stockout_pdf.html')
+    html = template.render({'stockout': stockout})
+    pdf = pdfkit.from_string(html, False, options={})
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="%s.pdf"' %(stockout.code)
+    return response
+
+# @api_view(['GET'])
+# @authentication_classes([authentication.TokenAuthentication])
+# @permission_classes([permissions.IsAuthenticated])
+def stockback_pdf(request, pk):
+    stockback = get_object_or_404(StockbackBasic, pk=pk)
+    # template = 'stockback_pdf.html'
+    # return render(request, template, {'stockback': stockout})
+    template = get_template('stockback_pdf.html')
+    html = template.render({'stockback': stockback})
+    pdf = pdfkit.from_string(html, False, options={})
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="%s.pdf"' %(stockback.code)
+    return response
+
+# @api_view(['GET'])
+# @authentication_classes([authentication.TokenAuthentication])
+# @permission_classes([permissions.IsAuthenticated])
+def stockdisable_pdf(request, pk):
+    stockdisable = get_object_or_404(StockdisableBasic, pk=pk)
+    # template = 'stockdisable_pdf.html'
+    # return render(request, template, {'stockdisable': stockout})
+    template = get_template('stockdisable_pdf.html')
+    html = template.render({'stockdisable': stockdisable})
+    pdf = pdfkit.from_string(html, False, options={})
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="%s.pdf"' %(stockdisable.code)
+    return response

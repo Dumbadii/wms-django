@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'unit',
     'params',
     'stockin',
+    'api',
     # 'django-filters',
 ]
 
