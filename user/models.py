@@ -6,4 +6,4 @@ from params.models import Department
 class Employee(models.Model):
   user = models.OneToOneField(User, on_delete=models.CASCADE)
   department = models.ForeignKey(Department, related_name='employee',
-    on_delete=models.CASCADE)
+    on_delete=models.CASCADE, null=True, blank=True)

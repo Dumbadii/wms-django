@@ -110,11 +110,11 @@ class EmployeeList(APIView):
         return Response(serializer.data)
 
 class DepartmentList(APIView):
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = [authentication.TokenAuthentication]
+    # permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        departments = Department.objects.all()
+        departments = Department.objects.filter(~Q(id=1))
         serializer = DepartmentSerializer(departments, many=True)
         return Response(serializer.data)
 
