@@ -2,10 +2,6 @@ import pdfkit
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
-from re import I
-from django.shortcuts import render
-from django.contrib.auth.models import User
-from django.http import Http404
 from rest_framework import status, authentication, permissions
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.views import APIView
@@ -29,7 +25,8 @@ from .serializers import (
   BarcodeSerializer,
   BarcodeDetailSerializer,
   ItemInfoSerializer,
-  ItemTypeSerializer,
+  ItemTypeParentSerializer,
+  ItemTypeChildSerializer,
   EmployeeSerializer,
   DepartmentSerializer,
   BarcodeStatusSerializer,
@@ -43,7 +40,8 @@ from stockin.models import (
 )
 from params.models import (
   ItemInfo,
-  ItemType,
+  ItemTypeChild,
+  ItemTypeParent,
   Department,
   BarcodeStatus,
 )
@@ -56,7 +54,6 @@ class BarcodesByDetail(APIView):
 
     def get(self, request, detail):
         barcodes = Barcode.objects.filter(stockin_detail=detail)
-        print(barcodes)
         serializer = BarcodeSerializer(barcodes, many=True)
         return Response(serializer.data)
 
@@ -65,22 +62,30 @@ class BarcodesByStatus(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, statusId):
-        print('statusId:',statusId)
         barcodes = Barcode.objects.filter(status=statusId)
         serializer = BarcodeSerializer(barcodes, many=True)
         return Response(serializer.data)
 
 class Type1List(APIView):
     def get(self, request):
-        types = ItemType.objects.filter(parent__isnull=True)
-        serializer = ItemTypeSerializer(types, many=True)
+        types = ItemTypeParent.objects.all()
+        serializer = ItemTypeParentSerializer(types, many=True)
         return Response(serializer.data)
 
 class Type2List(APIView):
     def get(self, request):
-        types = ItemType.objects.filter(parent__isnull=False)
-        serializer = ItemTypeSerializer(types, many=True)
+        types = ItemTypeChild.objects.all()
+        serializer = ItemTypeChildSerializer(types, many=True)
         return Response(serializer.data)
+
+class ItemTypeSave(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        print(request.data)
+        return Response('%s confirmed' %('test'))
+
 
 class ItemsAll(APIView):
     authentication_classes = [authentication.TokenAuthentication]
@@ -188,14 +193,12 @@ def stockout_save(request):
     serializer = StockoutBasicSerializer(obj,data=request.data)
   else:
     serializer = StockoutBasicSerializer(data=request.data)
-  print(request.data)
   if serializer.is_valid():
     try:
         serializer.save(operator=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Exception:
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-  print(serializer.errors)
   return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class StockoutInfo(APIView):
@@ -215,9 +218,7 @@ class StockoutConfirm(APIView):
         basic = StockoutBasic.objects.get(id=pk)
         basic.confirmed = True
         basic.save()
-        print('%s confirmed' %(pk))
         for detail in basic.details.all():
-          print(detail.barcode, detail.barcode.status)
           detail.barcode.status_id = 2
           detail.barcode.department = basic.department
           detail.barcode.save()
@@ -243,15 +244,13 @@ def stockback_save(request):
     serializer = StockbackBasicSerializer(obj,data=request.data)
   else:
     serializer = StockbackBasicSerializer(data=request.data)
-  print(request.data)
+
   if serializer.is_valid():
     try:
         serializer.save(operator=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Exception:
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-  print('not validate')
-  print(serializer.errors)
   return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class StockbackInfo(APIView):
@@ -271,10 +270,9 @@ class StockbackConfirm(APIView):
         basic = StockbackBasic.objects.get(id=pk)
         basic.confirmed = True
         basic.save()
-        print('%s confirmed' %(pk))
         for detail in basic.details.all():
-          print(detail.barcode, detail.barcode.status)
           detail.barcode.status_id = 1
+          detail.barcode.department_id = 1
           detail.barcode.save()
         # serializer = StockbackBasicGetSerializer(basic)
         return Response('%s confirmed' %(basic.code))
@@ -324,10 +322,9 @@ class StockdisableConfirm(APIView):
         basic = StockdisableBasic.objects.get(id=pk)
         basic.confirmed = True
         basic.save()
-        print('%s confirmed' %(pk))
         for detail in basic.details.all():
-          print(detail.barcode, detail.barcode.status)
           detail.barcode.status_id = 4
+          detail.barcode.department_id = 1
           detail.barcode.save()
         # serializer = StockdisableBasicGetSerializer(basic)
         return Response('%s confirmed' %(basic.code))
@@ -352,6 +349,7 @@ class BarcodeSearch(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = self.queryset
+        print(self.request.query_params)
         itemName = self.request.query_params.get('itemName', None)
         type1 = self.request.query_params.get('type1', None)
         type2 = self.request.query_params.get('type2', None)
@@ -361,15 +359,12 @@ class BarcodeSearch(generics.ListAPIView):
         department = self.request.query_params.get('department', None)
         code = self.request.query_params.get('code', None)
 
-        print('t1%s-t2%s-st%s-item%s' %(type1, type2, status, item))
-        print(self.request.query_params)
-
         if itemName is not None:
             queryset = queryset.filter(item__name__contains=itemName)
         if item is not None:
             queryset = queryset.filter(item__code=item)
         if type1 is not None:
-            queryset = queryset.filter(item__type1__code=type1)
+            queryset = queryset.filter(item__type2__parent__code=type1)
         if type2 is not None:
             queryset = queryset.filter(item__type2__code=type2)
         if status is not None:
@@ -389,10 +384,10 @@ class InventoryStat(APIView):
     def get(self, request):
       total = Barcode.objects.count()
       inCnt = Barcode.objects.filter(~Q(status__statusId=4) & Q(department=1)).count()
-      outCnt = Barcode.objects.filter(~Q(status__statusId=4) & ~Q(department=1)).count()
+      outCnt = Barcode.objects.filter(~Q(department=1)).count()
       disableCnt = Barcode.objects.filter(status__statusId=4).count()
 
-      deptStat =[{'name':obj.name, 'cnt':obj.barcodes.count()} for obj in Department.objects.all()]
+      deptStat =[{'name':obj.name, 'cnt':obj.barcodes.filter(~Q(status=4)).count()} for obj in Department.objects.all()]
       
       result = {
         'total': total,

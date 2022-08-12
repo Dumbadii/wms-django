@@ -30,6 +30,7 @@ from .views import (
   stockout_pdf,
   stockback_pdf,
   stockdisable_pdf,
+  ItemTypeSave,
 )
 
 app_name = 'api'
@@ -59,6 +60,7 @@ urlpatterns = [
   path('items/', ItemsAll.as_view()),
   path('type1/', Type1List.as_view()),
   path('type2/', Type2List.as_view()),
+  path('type_save/', ItemTypeSave.as_view()),
   path('status/', StatusList.as_view()),
   path('stat/', InventoryStat.as_view()),
   path('barcodes/detail/<int:detail>/', BarcodesByDetail.as_view()),

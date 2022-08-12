@@ -16,7 +16,8 @@ from params.models import (
     BarcodeStatus,
     ItemInfo,
     Unit,
-    ItemType,
+    ItemTypeChild,
+    ItemTypeParent,
     Department
 )
 
@@ -80,7 +81,7 @@ class BarcodeDetailSerializer(serializers.BaseSerializer):
         return {
             'id': instance.id,
             'code': instance.code,
-            'type1': instance.item.type1.name,
+            'type1': instance.item.type2.parent.name,
             'type2': instance.item.type2.name,
             'item': instance.item.name,
             'unit': instance.item.unit.name,
@@ -88,23 +89,24 @@ class BarcodeDetailSerializer(serializers.BaseSerializer):
             'amount': instance.amount,
             'status': instance.status.statusName
         }
-    # class Meta:
-    #     model = Barcode
-    #     fields = (
-    #         "id",
-    #         "code",
-    #         "item",
-    #         "amount",
-    #     )
 
-class ItemTypeSerializer(serializers.ModelSerializer):
+class ItemTypeChildSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ItemType
+        model = ItemTypeChild
         fields = (
             'id',
             'code',
             'name',
             'parent'
+        )
+
+class ItemTypeParentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ItemTypeParent
+        fields = (
+            'id',
+            'code',
+            'name'
         )
 
 class ItemInfoSerializer(serializers.ModelSerializer):    
