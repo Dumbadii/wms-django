@@ -53,7 +53,7 @@ class StockinDetail(models.Model):
     def list_barcodes(self):
         if self.basic.confirmed:
             if self.barcode_count > 1:
-                return '%s-%s' %(self.barcodes.all()[0].code, self.barcodes.all()[self.barcode_count-1].code)
+                return '%s-%s' %(self.barcodes.all()[0].code, self.barcodes.all()[self.barcode_count-1].code[-4:])
             else:
                 return self.barcodes.all()[0].code
         return 'no barcodes'
